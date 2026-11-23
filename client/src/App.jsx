@@ -9,7 +9,7 @@ function App() {
 
   return (
     <>
-      Lets start something big
+
     </>
   )
 }
