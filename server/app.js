@@ -1,6 +1,7 @@
 import express, { Router } from "express";
 import cors from "cors";
 
+import authRoute from "./src/modules/auth/routes/auth.route.js"
 
 
 const app = express();
@@ -16,6 +17,9 @@ app.use(cors({
     allowedHeaders: ["Content-Type", "Authorization", "x-idempotency-key", "x-address-id"],
 }));
 
+
+
+app.use("/api/v1/auth", authRoute)
 
 
 // Health check

@@ -1,0 +1,31 @@
+name: Nightly Backup
+
+on:
+  schedule:
+    # Runs at 00:00 UTC every day
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  backup:
+    name: Create nightly repo bundle
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create git bundle
+        run: |
+          DATE=$(date +%Y-%m-%d)
+          git bundle create repo-$DATE.bundle --all
+          echo "Bundle created: repo-$DATE.bundle"
+          ls -lh repo-$DATE.bundle
+
+      - name: Upload bundle as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: repo-${{ github.run_number }}-${{ github.sha }}
+          path: repo-*.bundle
+          retention-days: 30
