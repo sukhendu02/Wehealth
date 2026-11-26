@@ -1,0 +1,57 @@
+name: Code Loss Guard
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  deletion-guard:
+    name: deletion-guard
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for deleted files
+        id: deleted_files
+        run: |
+          DELETED=$(git diff --diff-filter=D --name-only origin/main...HEAD)
+          if [ -n "$DELETED" ]; then
+            echo "deleted_files=true" >> $GITHUB_OUTPUT
+            echo "::error::The following files were deleted in this PR:"
+            echo "$DELETED"
+          else
+            echo "deleted_files=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check net line removal
+        id: line_check
+        run: |
+          STAT=$(git diff --stat origin/main...HEAD)
+          REMOVED=$(git diff origin/main...HEAD | grep -c '^-' || true)
+          ADDED=$(git diff origin/main...HEAD | grep -c '^+' || true)
+          NET=$((REMOVED - ADDED))
+          echo "Net lines removed: $NET"
+          if [ "$NET" -gt 100 ]; then
+            echo "over_limit=true" >> $GITHUB_OUTPUT
+            echo "::error::This PR removes more than 100 net lines ($NET lines). Add the 'deletion-approved' label after a reviewer checks every removed line."
+          else
+            echo "over_limit=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check deletion-approved label
+        if: steps.deleted_files.outputs.deleted_files == 'true' || steps.line_check.outputs.over_limit == 'true'
+        run: |
+          LABELS=$(echo '${{ toJson(github.event.pull_request.labels.*.name) }}')
+          if echo "$LABELS" | grep -q "deletion-approved"; then
+            echo "deletion-approved label found. Guard passed."
+          else
+            echo "::error::Files deleted or >100 net lines removed. A reviewer must add the 'deletion-approved' label after checking every removed line."
+            exit 1
+          fi
+
+      - name: Guard passed
+        if: steps.deleted_files.outputs.deleted_files == 'false' && steps.line_check.outputs.over_limit == 'false'
+        run: echo "No files deleted and net removal is within limit. Guard passed."

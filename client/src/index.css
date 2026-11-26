@@ -1,616 +1,249 @@
-@import "tailwindcss";
-
-
-
 /* ==========================================================================
-   NourishBox Admin: design tokens (Tailwind CSS v4)
-   Visual language inspired by Minimals (minimals.cc/dashboard):
-   soft shadows, 8/16px radii, Public Sans + Barlow, calm neutrals.
+   NourishBox Admin theme (Tailwind CSS v4), Minimals-inspired.
+   All Tailwind defaults are kept (red-500, shadow-lg, rounded-xl, md: ...).
+   This file only ADDS tokens on top.
 
-   HOW TO RE-THEME
-   1. Change the 3 brand colours in section 1 (and their "on-" text colours).
-      Every shade, soft tint, hover, glow and chart colour is derived from them.
-   2. Neutrals (text, surfaces, borders) live in section 2 and rarely change.
-   3. Dark mode needs no `dark:` prefixes. Semantic classes such as bg-card,
-      text-fg and border-line switch automatically when <html class="dark">.
+   RE-THEME: change the 3 brand colours in section 1. Everything else
+   (50-900 shades, soft tints, glows) is derived from them.
 
-   USE IN CODE (examples)
-   Page/surfaces : bg-page  bg-card  bg-subtle  bg-hover  bg-selected
-   Text          : text-fg  text-fg-muted  text-fg-faint
-   Borders       : border-line  border-line-strong
-   Brand         : bg-primary  text-primary-ink  bg-primary-soft  bg-accent-500 ...
-   Status        : bg-success-soft text-success-ink   (also info/warning/error)
-   Shadows       : shadow-card  shadow-dropdown  shadow-z8  shadow-primary
-   Radius        : rounded-card  rounded-md  rounded-xl
-   Type          : text-h1 ... text-h6  text-subtitle  text-body  text-caption
+   DARK MODE: add class "dark" to <html>. Semantic classes switch by
+   themselves, so you rarely need the dark: prefix.
+
+   CLASSES YOU GET
+   Brand    bg-primary-50 ... bg-primary-900   (same for secondary, accent)
+            bg-primary  text-primary-contrast  bg-primary-soft  text-primary-ink
+   Status   bg-success  bg-success-soft  text-success-ink   (info, warning, error)
+   Surface  bg-page  bg-card  bg-subtle  bg-hover  bg-selected
+   Text     text-fg  text-fg-muted  text-fg-faint
+   Border   border-line  border-line-strong
+   Shadow   shadow-card  shadow-dropdown  shadow-dialog  shadow-z4/z8/z16/z24
+            shadow-primary  shadow-secondary  shadow-accent
    ========================================================================== */
 
-/* Fonts must be imported before Tailwind. Public Sans = body, Barlow =
-   headings, Noto Sans Devanagari = Hindi fallback. */
+/* Fonts (import before Tailwind). Public Sans body, Barlow headings,
+   Noto Sans Devanagari for Hindi. Remove this line to use system fonts. */
+@import url("https://fonts.googleapis.com/css2?family=Barlow:wght@600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700;800&display=swap");
+@import "tailwindcss";
 
-
-/* Class-based dark mode: toggle <html class="dark"> */
+/* Dark mode is controlled by <html class="dark"> */
 @custom-variant dark (&:where(.dark, .dark *));
 
 
 /* ==========================================================================
-   1. BRAND INPUTS  (the only values you normally edit)
+   1. EDIT THESE: brand and status colours
    ========================================================================== */
 :root {
-    /* The 3 brand colours */
-    --brand-primary: #00A76F;
-    /* main actions, active nav, key charts   */
-    --brand-secondary: #8E33FF;
-    /* supporting highlights, second series   */
-    --brand-accent: #00B8D9;
-    /* contrast: badges, links, callouts      */
+  /* Brand (the 3 colours) */
+  --brand-primary:   #00A76F;
+  --brand-secondary: #8E33FF;
+  --brand-accent:    #00B8D9;
 
-    /* Text colour used ON TOP of each brand colour (check contrast!) */
-    --on-primary: #FFFFFF;
-    --on-secondary: #FFFFFF;
-    --on-accent: #FFFFFF;
+  /* Text colour placed ON each brand colour (check contrast) */
+  --on-primary:   #FFFFFF;
+  --on-secondary: #FFFFFF;
+  --on-accent:    #FFFFFF;
 
-    /* Status colours: independent of the brand so meaning never changes */
-    --status-success: #22C55E;
-    --status-info: #2E90FA;
-    --status-warning: #FFAB00;
-    --status-error: #FF5630;
-    --on-success: #FFFFFF;
-    --on-info: #FFFFFF;
-    --on-warning: #1C252E;
-    --on-error: #FFFFFF;
-
-    /* Layout sizes (use as w-(--sidebar-width), h-(--header-height)) */
-    --sidebar-width: 280px;
-    --sidebar-mini-width: 88px;
-    --header-height: 72px;
-    --content-max-width: 1200px;
-
-    /* Chart palette for Recharts / ECharts (read with getComputedStyle) */
-    --chart-1: var(--brand-primary);
-    --chart-2: var(--brand-secondary);
-    --chart-3: var(--brand-accent);
-    --chart-4: var(--status-warning);
-    --chart-5: var(--status-error);
-    --chart-6: var(--status-info);
-}
-
-/* Optional presets: set <html data-preset="ocean"> to swap the whole brand */
-[data-preset="ocean"] {
-    --brand-primary: #2065D1;
-    --brand-secondary: #8E33FF;
-    --brand-accent: #FFAB00;
-    --on-accent: #1C252E;
-}
-
-[data-preset="sunset"] {
-    --brand-primary: #FF6C2F;
-    --brand-secondary: #7635DC;
-    --brand-accent: #00A76F;
+  /* Status */
+  --status-success: #22C55E;
+  --status-info:    #2E90FA;
+  --status-warning: #FFAB00;
+  --status-error:   #FF5630;
+  --on-success: #FFFFFF;
+  --on-info:    #FFFFFF;
+  --on-warning: #1C252E;
+  --on-error:   #FFFFFF;
 }
 
 
 /* ==========================================================================
-   2. NEUTRALS AND MODE TOKENS  (light by default, overridden in .dark)
+   2. LIGHT / DARK TOKENS: surfaces, text, borders, shadows
    ========================================================================== */
 :root {
-    color-scheme: light;
+  color-scheme: light;
 
-    --bg-page: #FFFFFF;
-    --bg-card: #FFFFFF;
-    --bg-subtle: #F4F6F8;
-    /* table headers, wells, inputs   */
-    --bg-overlay: rgb(20 26 33 / 0.48);
-    /* modal / drawer backdrop        */
+  /* Surfaces */
+  --bg-page:   #FFFFFF;
+  --bg-card:   #FFFFFF;
+  --bg-subtle: #F4F6F8;
+  --bg-hover:    rgb(145 158 171 / 0.08);
+  --bg-selected: rgb(145 158 171 / 0.16);
 
-    --fg: #1C252E;
-    /* primary text                   */
-    --fg-muted: #637381;
-    /* secondary text                 */
-    --fg-faint: #919EAB;
-    /* placeholders, disabled text    */
+  /* Text */
+  --fg:       #1C252E;
+  --fg-muted: #637381;
+  --fg-faint: #919EAB;
 
-    --line: rgb(145 158 171 / 0.20);
-    /* dividers, card borders     */
-    --line-strong: rgb(145 158 171 / 0.32);
-    /* input outlines             */
-    --hover: rgb(145 158 171 / 0.08);
-    --selected: rgb(145 158 171 / 0.16);
-    --disabled-bg: rgb(145 158 171 / 0.24);
-    --disabled-fg: rgb(145 158 171 / 0.80);
+  /* Borders */
+  --line:        rgb(145 158 171 / 0.20);
+  --line-strong: rgb(145 158 171 / 0.32);
 
-    --shadow-rgb: 145 158 171;
-    /* grey glow in light mode        */
+  /* Shadow colour (R G B) */
+  --shadow-rgb: 145 158 171;
 
-    /* Readable text on soft tints: darker shade in light mode */
-    --ink-primary: color-mix(in oklab, var(--brand-primary) 78%, black);
-    --ink-secondary: color-mix(in oklab, var(--brand-secondary) 78%, black);
-    --ink-accent: color-mix(in oklab, var(--brand-accent) 70%, black);
-    --ink-success: color-mix(in oklab, var(--status-success) 70%, black);
-    --ink-info: color-mix(in oklab, var(--status-info) 78%, black);
-    --ink-warning: color-mix(in oklab, var(--status-warning) 62%, black);
-    --ink-error: color-mix(in oklab, var(--status-error) 78%, black);
+  /* Readable text on soft tints (darker shade in light mode) */
+  --ink-primary:   color-mix(in oklab, var(--brand-primary) 78%, black);
+  --ink-secondary: color-mix(in oklab, var(--brand-secondary) 78%, black);
+  --ink-accent:    color-mix(in oklab, var(--brand-accent) 70%, black);
+  --ink-success:   color-mix(in oklab, var(--status-success) 70%, black);
+  --ink-info:      color-mix(in oklab, var(--status-info) 78%, black);
+  --ink-warning:   color-mix(in oklab, var(--status-warning) 62%, black);
+  --ink-error:     color-mix(in oklab, var(--status-error) 78%, black);
 }
 
 .dark {
-    color-scheme: dark;
+  color-scheme: dark;
 
-    --bg-page: #141A21;
-    --bg-card: #1C252E;
-    --bg-subtle: #28323D;
-    --bg-overlay: rgb(20 26 33 / 0.72);
+  --bg-page:   #141A21;
+  --bg-card:   #1C252E;
+  --bg-subtle: #28323D;
+  --bg-hover:    rgb(145 158 171 / 0.08);
+  --bg-selected: rgb(145 158 171 / 0.16);
 
-    --fg: #FFFFFF;
-    --fg-muted: #919EAB;
-    --fg-faint: #637381;
+  --fg:       #FFFFFF;
+  --fg-muted: #919EAB;
+  --fg-faint: #637381;
 
-    --line: rgb(145 158 171 / 0.20);
-    --line-strong: rgb(145 158 171 / 0.32);
-    --hover: rgb(145 158 171 / 0.08);
-    --selected: rgb(145 158 171 / 0.16);
-    --disabled-bg: rgb(145 158 171 / 0.24);
-    --disabled-fg: rgb(145 158 171 / 0.80);
+  --line:        rgb(145 158 171 / 0.20);
+  --line-strong: rgb(145 158 171 / 0.32);
 
-    --shadow-rgb: 0 0 0;
-    /* black shadows in dark mode     */
+  --shadow-rgb: 0 0 0;
 
-    /* Lighter shade for text on soft tints in dark mode */
-    --ink-primary: color-mix(in oklab, var(--brand-primary) 62%, white);
-    --ink-secondary: color-mix(in oklab, var(--brand-secondary) 62%, white);
-    --ink-accent: color-mix(in oklab, var(--brand-accent) 62%, white);
-    --ink-success: color-mix(in oklab, var(--status-success) 62%, white);
-    --ink-info: color-mix(in oklab, var(--status-info) 62%, white);
-    --ink-warning: color-mix(in oklab, var(--status-warning) 62%, white);
-    --ink-error: color-mix(in oklab, var(--status-error) 62%, white);
+  /* Lighter shade for text on soft tints in dark mode */
+  --ink-primary:   color-mix(in oklab, var(--brand-primary) 62%, white);
+  --ink-secondary: color-mix(in oklab, var(--brand-secondary) 62%, white);
+  --ink-accent:    color-mix(in oklab, var(--brand-accent) 62%, white);
+  --ink-success:   color-mix(in oklab, var(--status-success) 62%, white);
+  --ink-info:      color-mix(in oklab, var(--status-info) 62%, white);
+  --ink-warning:   color-mix(in oklab, var(--status-warning) 62%, white);
+  --ink-error:     color-mix(in oklab, var(--status-error) 62%, white);
 }
 
 
 /* ==========================================================================
-   3. STATIC THEME  (values that do not depend on mode or brand)
+   3. TOKENS EXPOSED TO TAILWIND (nothing here removes a Tailwind default)
+   "inline" makes values resolve where they are used, so brand changes and
+   dark mode apply everywhere, including opacity modifiers like bg-primary/50.
    ========================================================================== */
 @theme {
-    /* Remove Tailwind's default palette, radii, shadows and breakpoints so
-     only these tokens exist and the UI stays consistent. Delete a reset
-     line if you want Tailwind's defaults back for that group. */
-    --color-*: initial;
-    --radius-*: initial;
-    --shadow-*: initial;
-    --breakpoint-*: initial;
-
-    --color-transparent: transparent;
-    --color-current: currentColor;
-    --color-white: #FFFFFF;
-    --color-black: #000000;
-
-    /* Neutral scale (same in both modes) */
-    --color-grey-50: #FCFDFD;
-    --color-grey-100: #F9FAFB;
-    --color-grey-200: #F4F6F8;
-    --color-grey-300: #DFE3E8;
-    --color-grey-400: #C4CDD5;
-    --color-grey-500: #919EAB;
-    --color-grey-600: #637381;
-    --color-grey-700: #454F5B;
-    --color-grey-800: #1C252E;
-    --color-grey-900: #141A21;
-
-    /* Typography */
-    --font-sans: "Public Sans", "Noto Sans Devanagari", ui-sans-serif, system-ui, sans-serif;
-    --font-display: "Barlow", "Noto Sans Devanagari", "Public Sans", ui-sans-serif, sans-serif;
-    --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-
-    --text-h1: 2.5rem;
-    --text-h1--line-height: 1.25;
-    --text-h1--font-weight: 800;
-    --text-h2: 2rem;
-    --text-h2--line-height: 1.25;
-    --text-h2--font-weight: 800;
-    --text-h3: 1.5rem;
-    --text-h3--line-height: 1.5;
-    --text-h3--font-weight: 700;
-    --text-h4: 1.25rem;
-    --text-h4--line-height: 1.5;
-    --text-h4--font-weight: 700;
-    --text-h5: 1.125rem;
-    --text-h5--line-height: 1.5;
-    --text-h5--font-weight: 700;
-    --text-h6: 1.0625rem;
-    --text-h6--line-height: 1.55;
-    --text-h6--font-weight: 600;
-    --text-subtitle: 0.875rem;
-    --text-subtitle--line-height: 1.57;
-    --text-subtitle--font-weight: 600;
-    --text-body: 0.875rem;
-    --text-body--line-height: 1.57;
-    --text-caption: 0.75rem;
-    --text-caption--line-height: 1.5;
-
-    /* Breakpoints match Minimals: 600 / 900 / 1200 / 1536 */
-    --breakpoint-sm: 37.5rem;
-    --breakpoint-md: 56.25rem;
-    --breakpoint-lg: 75rem;
-    --breakpoint-xl: 96rem;
-
-    /* Radius: 8px controls, 16px cards */
-    --radius-xs: 0.25rem;
-    --radius-sm: 0.375rem;
-    --radius-md: 0.5rem;
-    --radius-lg: 0.75rem;
-    --radius-xl: 1rem;
-    --radius-2xl: 1.25rem;
-    --radius-3xl: 1.5rem;
-    --radius-card: 1rem;
-    --radius-control: 0.5rem;
-
-    /* Motion */
-    --ease-minimal: cubic-bezier(0.4, 0, 0.2, 1);
-    --default-transition-duration: 200ms;
-    --default-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  --font-sans: "Public Sans", "Noto Sans Devanagari", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Barlow", "Noto Sans Devanagari", "Public Sans", ui-sans-serif, sans-serif;
 }
 
-
-/* ==========================================================================
-   4. DERIVED THEME  (resolved at the element, so brand + dark mode just work)
-   ========================================================================== */
 @theme inline {
-    /* ---- Surfaces, text, borders (switch with .dark) ---- */
-    --color-page: var(--bg-page);
-    --color-card: var(--bg-card);
-    --color-subtle: var(--bg-subtle);
-    --color-overlay: var(--bg-overlay);
-    --color-fg: var(--fg);
-    --color-fg-muted: var(--fg-muted);
-    --color-fg-faint: var(--fg-faint);
-    --color-line: var(--line);
-    --color-line-strong: var(--line-strong);
-    --color-hover: var(--hover);
-    --color-selected: var(--selected);
-    --color-disabled: var(--disabled-bg);
-    --color-disabled-fg: var(--disabled-fg);
+  /* ---- Surfaces, text, borders ---- */
+  --color-page: var(--bg-page);
+  --color-card: var(--bg-card);
+  --color-subtle: var(--bg-subtle);
+  --color-hover: var(--bg-hover);
+  --color-selected: var(--bg-selected);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-faint: var(--fg-faint);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
 
-    /* ---- PRIMARY ---- */
-    --color-primary: var(--brand-primary);
-    --color-primary-50: color-mix(in oklab, var(--brand-primary) 8%, white);
-    --color-primary-100: color-mix(in oklab, var(--brand-primary) 16%, white);
-    --color-primary-200: color-mix(in oklab, var(--brand-primary) 32%, white);
-    --color-primary-300: color-mix(in oklab, var(--brand-primary) 52%, white);
-    --color-primary-400: color-mix(in oklab, var(--brand-primary) 76%, white);
-    --color-primary-500: var(--brand-primary);
-    --color-primary-600: color-mix(in oklab, var(--brand-primary) 86%, black);
-    --color-primary-700: color-mix(in oklab, var(--brand-primary) 70%, black);
-    --color-primary-800: color-mix(in oklab, var(--brand-primary) 54%, black);
-    --color-primary-900: color-mix(in oklab, var(--brand-primary) 38%, black);
-    --color-primary-lighter: color-mix(in oklab, var(--brand-primary) 24%, white);
-    --color-primary-light: color-mix(in oklab, var(--brand-primary) 72%, white);
-    --color-primary-dark: color-mix(in oklab, var(--brand-primary) 80%, black);
-    --color-primary-darker: color-mix(in oklab, var(--brand-primary) 56%, black);
-    --color-primary-soft: color-mix(in oklab, var(--brand-primary) 16%, transparent);
-    --color-primary-softer: color-mix(in oklab, var(--brand-primary) 28%, transparent);
-    --color-primary-ink: var(--ink-primary);
-    --color-primary-contrast: var(--on-primary);
+  /* ---- Primary ---- */
+  --color-primary: var(--brand-primary);
+  --color-primary-50:  color-mix(in oklab, var(--brand-primary) 8%,  white);
+  --color-primary-100: color-mix(in oklab, var(--brand-primary) 16%, white);
+  --color-primary-200: color-mix(in oklab, var(--brand-primary) 32%, white);
+  --color-primary-300: color-mix(in oklab, var(--brand-primary) 52%, white);
+  --color-primary-400: color-mix(in oklab, var(--brand-primary) 76%, white);
+  --color-primary-500: var(--brand-primary);
+  --color-primary-600: color-mix(in oklab, var(--brand-primary) 86%, black);
+  --color-primary-700: color-mix(in oklab, var(--brand-primary) 70%, black);
+  --color-primary-800: color-mix(in oklab, var(--brand-primary) 54%, black);
+  --color-primary-900: color-mix(in oklab, var(--brand-primary) 38%, black);
+  --color-primary-soft: color-mix(in oklab, var(--brand-primary) 16%, transparent);
+  --color-primary-ink: var(--ink-primary);
+  --color-primary-contrast: var(--on-primary);
 
-    /* ---- SECONDARY ---- */
-    --color-secondary: var(--brand-secondary);
-    --color-secondary-50: color-mix(in oklab, var(--brand-secondary) 8%, white);
-    --color-secondary-100: color-mix(in oklab, var(--brand-secondary) 16%, white);
-    --color-secondary-200: color-mix(in oklab, var(--brand-secondary) 32%, white);
-    --color-secondary-300: color-mix(in oklab, var(--brand-secondary) 52%, white);
-    --color-secondary-400: color-mix(in oklab, var(--brand-secondary) 76%, white);
-    --color-secondary-500: var(--brand-secondary);
-    --color-secondary-600: color-mix(in oklab, var(--brand-secondary) 86%, black);
-    --color-secondary-700: color-mix(in oklab, var(--brand-secondary) 70%, black);
-    --color-secondary-800: color-mix(in oklab, var(--brand-secondary) 54%, black);
-    --color-secondary-900: color-mix(in oklab, var(--brand-secondary) 38%, black);
-    --color-secondary-lighter: color-mix(in oklab, var(--brand-secondary) 24%, white);
-    --color-secondary-light: color-mix(in oklab, var(--brand-secondary) 72%, white);
-    --color-secondary-dark: color-mix(in oklab, var(--brand-secondary) 80%, black);
-    --color-secondary-darker: color-mix(in oklab, var(--brand-secondary) 56%, black);
-    --color-secondary-soft: color-mix(in oklab, var(--brand-secondary) 16%, transparent);
-    --color-secondary-softer: color-mix(in oklab, var(--brand-secondary) 28%, transparent);
-    --color-secondary-ink: var(--ink-secondary);
-    --color-secondary-contrast: var(--on-secondary);
+  /* ---- Secondary ---- */
+  --color-secondary: var(--brand-secondary);
+  --color-secondary-50:  color-mix(in oklab, var(--brand-secondary) 8%,  white);
+  --color-secondary-100: color-mix(in oklab, var(--brand-secondary) 16%, white);
+  --color-secondary-200: color-mix(in oklab, var(--brand-secondary) 32%, white);
+  --color-secondary-300: color-mix(in oklab, var(--brand-secondary) 52%, white);
+  --color-secondary-400: color-mix(in oklab, var(--brand-secondary) 76%, white);
+  --color-secondary-500: var(--brand-secondary);
+  --color-secondary-600: color-mix(in oklab, var(--brand-secondary) 86%, black);
+  --color-secondary-700: color-mix(in oklab, var(--brand-secondary) 70%, black);
+  --color-secondary-800: color-mix(in oklab, var(--brand-secondary) 54%, black);
+  --color-secondary-900: color-mix(in oklab, var(--brand-secondary) 38%, black);
+  --color-secondary-soft: color-mix(in oklab, var(--brand-secondary) 16%, transparent);
+  --color-secondary-ink: var(--ink-secondary);
+  --color-secondary-contrast: var(--on-secondary);
 
-    /* ---- ACCENT (contrast) ---- */
-    --color-accent: var(--brand-accent);
-    --color-accent-50: color-mix(in oklab, var(--brand-accent) 8%, white);
-    --color-accent-100: color-mix(in oklab, var(--brand-accent) 16%, white);
-    --color-accent-200: color-mix(in oklab, var(--brand-accent) 32%, white);
-    --color-accent-300: color-mix(in oklab, var(--brand-accent) 52%, white);
-    --color-accent-400: color-mix(in oklab, var(--brand-accent) 76%, white);
-    --color-accent-500: var(--brand-accent);
-    --color-accent-600: color-mix(in oklab, var(--brand-accent) 86%, black);
-    --color-accent-700: color-mix(in oklab, var(--brand-accent) 70%, black);
-    --color-accent-800: color-mix(in oklab, var(--brand-accent) 54%, black);
-    --color-accent-900: color-mix(in oklab, var(--brand-accent) 38%, black);
-    --color-accent-lighter: color-mix(in oklab, var(--brand-accent) 24%, white);
-    --color-accent-light: color-mix(in oklab, var(--brand-accent) 72%, white);
-    --color-accent-dark: color-mix(in oklab, var(--brand-accent) 80%, black);
-    --color-accent-darker: color-mix(in oklab, var(--brand-accent) 56%, black);
-    --color-accent-soft: color-mix(in oklab, var(--brand-accent) 16%, transparent);
-    --color-accent-softer: color-mix(in oklab, var(--brand-accent) 28%, transparent);
-    --color-accent-ink: var(--ink-accent);
-    --color-accent-contrast: var(--on-accent);
+  /* ---- Accent ---- */
+  --color-accent: var(--brand-accent);
+  --color-accent-50:  color-mix(in oklab, var(--brand-accent) 8%,  white);
+  --color-accent-100: color-mix(in oklab, var(--brand-accent) 16%, white);
+  --color-accent-200: color-mix(in oklab, var(--brand-accent) 32%, white);
+  --color-accent-300: color-mix(in oklab, var(--brand-accent) 52%, white);
+  --color-accent-400: color-mix(in oklab, var(--brand-accent) 76%, white);
+  --color-accent-500: var(--brand-accent);
+  --color-accent-600: color-mix(in oklab, var(--brand-accent) 86%, black);
+  --color-accent-700: color-mix(in oklab, var(--brand-accent) 70%, black);
+  --color-accent-800: color-mix(in oklab, var(--brand-accent) 54%, black);
+  --color-accent-900: color-mix(in oklab, var(--brand-accent) 38%, black);
+  --color-accent-soft: color-mix(in oklab, var(--brand-accent) 16%, transparent);
+  --color-accent-ink: var(--ink-accent);
+  --color-accent-contrast: var(--on-accent);
 
-    /* ---- STATUS: success / info / warning / error ---- */
-    --color-success: var(--status-success);
-    --color-success-light: color-mix(in oklab, var(--status-success) 72%, white);
-    --color-success-dark: color-mix(in oklab, var(--status-success) 80%, black);
-    --color-success-soft: color-mix(in oklab, var(--status-success) 16%, transparent);
-    --color-success-softer: color-mix(in oklab, var(--status-success) 28%, transparent);
-    --color-success-ink: var(--ink-success);
-    --color-success-contrast: var(--on-success);
+  /* ---- Status: success ---- */
+  --color-success: var(--status-success);
+  --color-success-light: color-mix(in oklab, var(--status-success) 72%, white);
+  --color-success-dark:  color-mix(in oklab, var(--status-success) 80%, black);
+  --color-success-soft:  color-mix(in oklab, var(--status-success) 16%, transparent);
+  --color-success-ink: var(--ink-success);
+  --color-success-contrast: var(--on-success);
 
-    --color-info: var(--status-info);
-    --color-info-light: color-mix(in oklab, var(--status-info) 72%, white);
-    --color-info-dark: color-mix(in oklab, var(--status-info) 80%, black);
-    --color-info-soft: color-mix(in oklab, var(--status-info) 16%, transparent);
-    --color-info-softer: color-mix(in oklab, var(--status-info) 28%, transparent);
-    --color-info-ink: var(--ink-info);
-    --color-info-contrast: var(--on-info);
+  /* ---- Status: info ---- */
+  --color-info: var(--status-info);
+  --color-info-light: color-mix(in oklab, var(--status-info) 72%, white);
+  --color-info-dark:  color-mix(in oklab, var(--status-info) 80%, black);
+  --color-info-soft:  color-mix(in oklab, var(--status-info) 16%, transparent);
+  --color-info-ink: var(--ink-info);
+  --color-info-contrast: var(--on-info);
 
-    --color-warning: var(--status-warning);
-    --color-warning-light: color-mix(in oklab, var(--status-warning) 72%, white);
-    --color-warning-dark: color-mix(in oklab, var(--status-warning) 80%, black);
-    --color-warning-soft: color-mix(in oklab, var(--status-warning) 16%, transparent);
-    --color-warning-softer: color-mix(in oklab, var(--status-warning) 28%, transparent);
-    --color-warning-ink: var(--ink-warning);
-    --color-warning-contrast: var(--on-warning);
+  /* ---- Status: warning ---- */
+  --color-warning: var(--status-warning);
+  --color-warning-light: color-mix(in oklab, var(--status-warning) 72%, white);
+  --color-warning-dark:  color-mix(in oklab, var(--status-warning) 80%, black);
+  --color-warning-soft:  color-mix(in oklab, var(--status-warning) 16%, transparent);
+  --color-warning-ink: var(--ink-warning);
+  --color-warning-contrast: var(--on-warning);
 
-    --color-error: var(--status-error);
-    --color-error-light: color-mix(in oklab, var(--status-error) 72%, white);
-    --color-error-dark: color-mix(in oklab, var(--status-error) 80%, black);
-    --color-error-soft: color-mix(in oklab, var(--status-error) 16%, transparent);
-    --color-error-softer: color-mix(in oklab, var(--status-error) 28%, transparent);
-    --color-error-ink: var(--ink-error);
-    --color-error-contrast: var(--on-error);
+  /* ---- Status: error ---- */
+  --color-error: var(--status-error);
+  --color-error-light: color-mix(in oklab, var(--status-error) 72%, white);
+  --color-error-dark:  color-mix(in oklab, var(--status-error) 80%, black);
+  --color-error-soft:  color-mix(in oklab, var(--status-error) 16%, transparent);
+  --color-error-ink: var(--ink-error);
+  --color-error-contrast: var(--on-error);
 
-    /* ---- Charts: fill-chart-1, stroke-chart-2, bg-chart-3 ... ---- */
-    --color-chart-1: var(--chart-1);
-    --color-chart-2: var(--chart-2);
-    --color-chart-3: var(--chart-3);
-    --color-chart-4: var(--chart-4);
-    --color-chart-5: var(--chart-5);
-    --color-chart-6: var(--chart-6);
-
-    /* ---- Shadows (grey in light mode, black in dark mode) ---- */
-    --shadow-z1: 0 1px 2px 0 rgb(var(--shadow-rgb) / 0.16);
-    --shadow-z4: 0 4px 8px 0 rgb(var(--shadow-rgb) / 0.16);
-    --shadow-z8: 0 8px 16px 0 rgb(var(--shadow-rgb) / 0.16);
-    --shadow-z12: 0 12px 24px -4px rgb(var(--shadow-rgb) / 0.16);
-    --shadow-z16: 0 16px 32px -4px rgb(var(--shadow-rgb) / 0.16);
-    --shadow-z20: 0 20px 40px -4px rgb(var(--shadow-rgb) / 0.16);
-    --shadow-z24: 0 24px 48px 0 rgb(var(--shadow-rgb) / 0.16);
-    --shadow-card: 0 0 2px 0 rgb(var(--shadow-rgb) / 0.2), 0 12px 24px -4px rgb(var(--shadow-rgb) / 0.12);
-    --shadow-dropdown: 0 0 2px 0 rgb(var(--shadow-rgb) / 0.24), -20px 20px 40px -4px rgb(var(--shadow-rgb) / 0.24);
-    --shadow-dialog: -40px 40px 80px -8px rgb(var(--shadow-rgb) / 0.24);
-    --shadow-primary: 0 8px 16px 0 color-mix(in oklab, var(--brand-primary) 24%, transparent);
-    --shadow-secondary: 0 8px 16px 0 color-mix(in oklab, var(--brand-secondary) 24%, transparent);
-    --shadow-accent: 0 8px 16px 0 color-mix(in oklab, var(--brand-accent) 24%, transparent);
+  /* ---- Shadows (grey in light mode, black in dark mode) ---- */
+  --shadow-z4:  0 4px 8px 0 rgb(var(--shadow-rgb) / 0.16);
+  --shadow-z8:  0 8px 16px 0 rgb(var(--shadow-rgb) / 0.16);
+  --shadow-z16: 0 16px 32px -4px rgb(var(--shadow-rgb) / 0.16);
+  --shadow-z24: 0 24px 48px 0 rgb(var(--shadow-rgb) / 0.16);
+  --shadow-card: 0 0 2px 0 rgb(var(--shadow-rgb) / 0.2), 0 12px 24px -4px rgb(var(--shadow-rgb) / 0.12);
+  --shadow-dropdown: 0 0 2px 0 rgb(var(--shadow-rgb) / 0.24), -20px 20px 40px -4px rgb(var(--shadow-rgb) / 0.24);
+  --shadow-dialog: -40px 40px 80px -8px rgb(var(--shadow-rgb) / 0.24);
+  --shadow-primary:   0 8px 16px 0 color-mix(in oklab, var(--brand-primary) 24%, transparent);
+  --shadow-secondary: 0 8px 16px 0 color-mix(in oklab, var(--brand-secondary) 24%, transparent);
+  --shadow-accent:    0 8px 16px 0 color-mix(in oklab, var(--brand-accent) 24%, transparent);
 }
 
 
 /* ==========================================================================
-   5. BASE STYLES
+   4. BASE (minimal): page colours, fonts, default border colour
    ========================================================================== */
 @layer base {
-    html {
-        font-family: var(--font-sans);
-        -webkit-text-size-adjust: 100%;
-    }
+  html { font-family: var(--font-sans); }
+  body { background-color: var(--bg-page); color: var(--fg); -webkit-font-smoothing: antialiased; }
+  h1, h2, h3, h4, h5, h6 { font-family: var(--font-display); }
 
-    body {
-        @apply bg-page text-fg text-body antialiased;
-    }
-
-    /* Tailwind v4 borders default to currentColor; use the theme divider */
-    *,
-    ::after,
-    ::before,
-    ::backdrop,
-    ::file-selector-button {
-        border-color: var(--line);
-    }
-
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6 {
-        font-family: var(--font-display);
-    }
-
-    h1 {
-        @apply text-h1;
-    }
-
-    h2 {
-        @apply text-h2;
-    }
-
-    h3 {
-        @apply text-h3;
-    }
-
-    h4 {
-        @apply text-h4;
-    }
-
-    h5 {
-        @apply text-h5;
-    }
-
-    h6 {
-        @apply text-h6;
-    }
-
-    ::selection {
-        background: color-mix(in oklab, var(--brand-primary) 28%, transparent);
-    }
-
-    :focus-visible {
-        outline: 2px solid var(--brand-primary);
-        outline-offset: 2px;
-    }
-
-    ::placeholder {
-        color: var(--fg-faint);
-    }
-
-    /* Slim scrollbars */
-    * {
-        scrollbar-width: thin;
-        scrollbar-color: rgb(145 158 171 / 0.48) transparent;
-    }
-}
-
-
-/* ==========================================================================
-   6. COMPONENT PRIMITIVES  (keep the whole admin visually consistent)
-   ========================================================================== */
-@layer components {
-
-    /* Cards */
-    .card {
-        @apply relative rounded-card bg-card shadow-card;
-    }
-
-    .card-outlined {
-        @apply relative rounded-card border border-line bg-card;
-    }
-
-    /* Buttons */
-    .btn {
-        @apply inline-flex h-9 cursor-pointer items-center justify-center gap-2 rounded-md px-4 text-sm font-bold whitespace-nowrap transition disabled:pointer-events-none disabled:bg-disabled disabled:text-disabled-fg disabled:shadow-none;
-    }
-
-    .btn-sm {
-        @apply h-8 px-3 text-[0.8125rem];
-    }
-
-    .btn-lg {
-        @apply h-12 px-5 text-[0.9375rem];
-    }
-
-    .btn-primary {
-        @apply bg-primary text-primary-contrast hover:bg-primary-dark hover:shadow-primary;
-    }
-
-    .btn-secondary {
-        @apply bg-secondary text-secondary-contrast hover:bg-secondary-dark hover:shadow-secondary;
-    }
-
-    .btn-accent {
-        @apply bg-accent text-accent-contrast hover:bg-accent-dark hover:shadow-accent;
-    }
-
-    /* Inverse: dark button in light mode, white in dark mode (Minimals default) */
-    .btn-neutral {
-        @apply bg-fg text-page hover:opacity-85;
-    }
-
-    .btn-soft-primary {
-        @apply bg-primary-soft text-primary-ink hover:bg-primary-softer;
-    }
-
-    .btn-soft-secondary {
-        @apply bg-secondary-soft text-secondary-ink hover:bg-secondary-softer;
-    }
-
-    .btn-soft-accent {
-        @apply bg-accent-soft text-accent-ink hover:bg-accent-softer;
-    }
-
-    .btn-outline {
-        @apply border border-line-strong text-fg hover:bg-hover;
-    }
-
-    .btn-text {
-        @apply text-fg hover:bg-hover;
-    }
-
-    /* Labels / status chips (soft style) */
-    .label {
-        @apply inline-flex h-6 min-w-6 items-center justify-center gap-1.5 rounded-md px-1.5 text-caption font-bold whitespace-nowrap;
-    }
-
-    .label-default {
-        @apply bg-selected text-fg-muted;
-    }
-
-    .label-primary {
-        @apply bg-primary-soft text-primary-ink;
-    }
-
-    .label-secondary {
-        @apply bg-secondary-soft text-secondary-ink;
-    }
-
-    .label-accent {
-        @apply bg-accent-soft text-accent-ink;
-    }
-
-    .label-success {
-        @apply bg-success-soft text-success-ink;
-    }
-
-    .label-info {
-        @apply bg-info-soft text-info-ink;
-    }
-
-    .label-warning {
-        @apply bg-warning-soft text-warning-ink;
-    }
-
-    .label-error {
-        @apply bg-error-soft text-error-ink;
-    }
-
-    /* Form controls */
-    .input {
-        @apply h-10 w-full rounded-control border border-line-strong bg-transparent px-3.5 text-body text-fg outline-none transition hover:border-fg focus:border-primary focus:ring-1 focus:ring-primary disabled:bg-disabled disabled:text-disabled-fg;
-    }
-
-    .input-error {
-        @apply border-error hover:border-error focus:border-error focus:ring-error;
-    }
-
-    /* Tables: neutral header, dashed row dividers */
-    .table-base {
-        @apply w-full border-collapse text-left;
-    }
-
-    .table-base th {
-        @apply bg-subtle px-4 py-3.5 text-subtitle text-fg-muted whitespace-nowrap;
-    }
-
-    .table-base td {
-        @apply border-b border-dashed border-line px-4 py-3.5;
-    }
-
-    .table-base tbody tr:hover {
-        @apply bg-hover;
-    }
-
-    /* Sidebar navigation item */
-    .nav-item {
-        @apply flex h-11 items-center gap-4 rounded-lg px-3 text-subtitle text-fg-muted transition hover:bg-hover;
-    }
-
-    .nav-item[data-active="true"] {
-        @apply bg-primary-soft text-primary-ink hover:bg-primary-softer;
-    }
-
-    /* Page and section chrome */
-    .page-title {
-        @apply text-h4;
-    }
-
-    .section-title {
-        @apply text-h6;
-    }
-
-    .divider-dashed {
-        @apply border-t border-dashed border-line;
-    }
+  /* Tailwind v4 borders default to currentColor; use the theme border */
+  *, ::after, ::before, ::backdrop, ::file-selector-button { border-color: var(--line); }
 }

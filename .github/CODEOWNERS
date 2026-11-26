@@ -1,0 +1,18 @@
+# CODEOWNERS - Require right reviewer for sensitive files (R080)
+# Format: pattern  @owner
+# GitHub requires the owner to be a collaborator with write access.
+
+# Shared infrastructure — team lead must review
+/server/app.js                    @sukhendu02
+/server/src/middleware/           @sukhendu02
+/server/package.json              @sukhendu02
+/server/package-lock.json         @sukhendu02
+
+# Auth module — security-sensitive
+/server/src/modules/auth/         @sukhendu02
+
+# Payment module — money-sensitive
+/server/src/modules/payment/      @sukhendu02
+
+# CI and repo config — team lead must review
+/.github/                         @sukhendu02
